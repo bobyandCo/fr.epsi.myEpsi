@@ -28,6 +28,11 @@ public class Utilisateur {
 		this.nom = nom;
 	}
 
+	@Override
+	public String toString() {
+		return "Utilisateur [id=" + id + ", nom=" + nom + ", password=" + password + ", administrateur=" + administrateur + "]";
+	}
+
 	public String getPassword() {
 		return password;
 	}
