@@ -50,13 +50,13 @@ public class StartupListener implements ServletContextListener {
      * @see ServletContextListener#contextInitialized(ServletContextEvent)
      */
     public void contextInitialized(ServletContextEvent event)  { 
-    	logger.error("Test de l'application");
+    	logger.info("Test de l'application");
     	try {
-    		logger.error( "Chargement du driver..." );
+    		logger.info( "Chargement du driver..." );
         	Class.forName("org.hsqldb.jdbcDriver");
-        	logger.error( "Driver chargé !" );
+        	logger.info( "Driver chargé !" );
     	} catch ( ClassNotFoundException e) {
-    	   	logger.error( "Erreur lors du chargement : le driver n'a pas été trouvé dans le classpath ! <br/>"+ e.getMessage() );
+    	   	logger.info( "Erreur lors du chargement : le driver n'a pas été trouvé dans le classpath ! <br/>"+ e.getMessage() );
     	}
     	/* Connexion à la base de données */
     	String url = "jdbc:hsqldb:hsql://localhost:9003";
@@ -78,20 +78,34 @@ public class StartupListener implements ServletContextListener {
     	//Array<Utilisateurs> users = new Array();
     	    
     	try {
-    	  	logger.error( "Connexion à la base de données..." );
+    	  	logger.info( "Connexion à la base de données..." );
     	   	connexion = DriverManager.getConnection( url, userbsd, passwordbsd );
-    	    logger.error("Connexion OK");
+    	    logger.info("Connexion OK");
 
     	    /* Création des objets gérants les requêtes */
     	    statement = connexion.createStatement();
-    	    logger.error( "Objet requête créé !" );
+    	    logger.info( "Objet requête créé !" );
                 
+    	    /* Récupération des paramètres d'URL saisis par l'utilisateur */
+
+    	    String paramEmail = request.getParameter( "email" );
+    	    String paramMotDePasse = request.getParameter( "motdepasse" );
+    	    String paramNom = request.getParameter( "nom" );
+    	    if ( paramEmail != null && paramMotDePasse!= null && paramNom != null ) {
+
+    	        /* Exécution d'une requête d'écriture */
+    	        int statut = statement.executeUpdate( "INSERT INTO Utilisateur (email, mot_de_passe, nom, date_inscription) "
+    	                + "VALUES ('" + paramEmail + "', MD5('" + paramMotDePasse + "'), '" + paramNom + "', NOW());" );
+
+    	        /* Formatage pour affichage dans la JSP finale. */
+
+    	        logger.info( "Résultat de la requête d'insertion : " + statut + "." );
+    	        
     	    /* Exécution d'une requête de lecture */
     	    resultat = statement.executeQuery( "SELECT ID, PASSWORD, ISADMINISTRATOR, NAME FROM UTILISATEURS;" );
-    	    logger.error( "Requête \"SELECT ID, PASSWORD, ISADMINISTRATOR, NAME FROM UTILISATEURS;\" effectuée !" );
+    	    logger.info( "Requête \"SELECT ID, PASSWORD, ISADMINISTRATOR, NAME FROM UTILISATEURS;\" effectuée !" );
     	 
-    	    logger.error(resultat.toString());
-            
+    	    logger.info(resultat.toString());
             
     	    /* Récupération des données du résultat de la requête de lecture */
     	    while ( resultat.next() ) {
@@ -106,11 +120,12 @@ public class StartupListener implements ServletContextListener {
     	       	users1.setPassword(mdpUtilisateur);
                 
     	       	/* Formatage des données pour affichage dans la JSP finale. */
-    	        logger.error( "Données retournées par la requête : ID = " + idUtilisateur + ", PASSWORD = " + mdpUtilisateur + ", ISADMINISTRATOR = " + isAdministrateur + ", NAME = " + nomUtilisateur + "." );
+    	        logger.info( "Données retournées par la requête : ID = " + idUtilisateur + ", PASSWORD = " + mdpUtilisateur + ", ISADMINISTRATOR = " + isAdministrateur + ", NAME = " + nomUtilisateur + "." );
     	        System.out.println(users1.toString());    	        
     	    }
     	    
-    	    logger.error(nomUtilisateur);   
+    	    logger.info(nomUtilisateur);   
+    	   
     	    
     	} catch ( SQLException e ) {
     	   	logger.error( "Erreur lors de la connexion : <br/>"+ e.getMessage() );
